@@ -44,7 +44,7 @@ def crawl(url: str) -> None:
         date = time.get("datetime")[:10]
 
     # Create directory path based on slug and date
-    folder = f"./{slug}/{date}"
+    folder = f"./data/{slug}/{date}"
     os.makedirs(folder, exist_ok=True)
 
     # Save the page content
