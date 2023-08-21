@@ -4,22 +4,23 @@ from bs4 import BeautifulSoup
 import os
 from datetime import datetime
 
-def crawl(url: str) -> str:
+def crawl(url: str) -> tuple:
     """
     Fetches the content of the provided URL and saves it as an HTML file
     in a directory structure based on the URL slug and either the current
     date or the date found within the page content. It returns a status
-    indicating if the content was 'added', 'changed', or 'unchanged'.
+    indicating if the content was 'added', 'changed', or 'unchanged', 
+    and the URL if it was changed.
 
     :param url: The URL to fetch and save content from.
-    :return: A string status ('added', 'changed', 'unchanged')
+    :return: A tuple containing the status and the URL (if changed).
     """
     try:
         response = requests.get(url)
         response.raise_for_status()  # Ensure we're not processing error responses (like 404s)
     except Exception as e:
         print(f"Error fetching {url} - {e}")
-        return "error"
+        return ("error",)
 
     soup = BeautifulSoup(response.text, "html.parser")
     path = urlsplit(url).path
@@ -46,7 +47,7 @@ def crawl(url: str) -> str:
         # Save the page content
         with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
             f.write(response.text)
-        return "added"
+        return ("added",)
     elif date == max(existing_dates) and not time_element:  # Same date, but no <time> tag
         existing_file_path = os.path.join(slug_dir, date, "index.html")
         with open(existing_file_path, "r", encoding="utf-8") as f:
@@ -58,6 +59,5 @@ def crawl(url: str) -> str:
             os.makedirs(folder, exist_ok=True)
             with open(os.path.join(folder, "index.html"), "w", encoding="utf-8") as f:
                 f.write(response.text)
-            return "changed"
-    return "unchanged"
-
+            return ("changed", url)
+    return ("unchanged",)
