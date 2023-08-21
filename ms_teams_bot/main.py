@@ -37,7 +37,7 @@ def main():
         stats[status] += 1
         if status == "changed":
             stats["changed_urls"].append(result[1])
-        print(f"{i}/{count} - {url} - {status}", end="\r")
+        print(f"{i}/{count}", end="\r")
         i+=1
 
     end_time = time.time()
