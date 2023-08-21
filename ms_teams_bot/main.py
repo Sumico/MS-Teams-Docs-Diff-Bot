@@ -6,6 +6,8 @@ import yaml
 from datetime import datetime
 import time
 
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 BASE_URL = "https://learn.microsoft.com/en-us/microsoftteams/"
 TOC_URL = "https://learn.microsoft.com/en-us/microsoftteams/toc.json"
 
