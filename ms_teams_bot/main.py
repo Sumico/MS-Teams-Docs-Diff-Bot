@@ -25,9 +25,18 @@ def main():
         print(f"Error fetching TOC from {TOC_URL} - {e}")
         return
 
-    urls = url_getter.get_urls(toc, BASE_URL)
+    urls, previous_urls = url_getter.get_urls(toc, BASE_URL)
+    removed_urls = list(set(previous_urls) - set(urls))
     
-    stats = {"added": 0, "changed": 0, "unchanged": 0, "error": 0, "changed_urls": []}
+    stats = {
+        "added": 0,
+        "changed": 0,
+        "unchanged": 0,
+        "error": 0,
+        "removed":len(removed_urls), 
+        "changed_urls": [],
+        "removed_urls": removed_urls,
+    }
     
     count = len(urls)
     i=1

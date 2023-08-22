@@ -19,7 +19,7 @@ def save_page(url, folder, content):
     os.makedirs(folder, exist_ok=True) 
   
     # Write the content to the file
-    with open(os.path.join(folder, filename), "w") as f:
+    with open(os.path.join(folder, filename), "w", encoding='utf-8') as f:
         f.write(content)
 
 
@@ -46,8 +46,10 @@ def crawl(url):
     slug = urlsplit(url).path.split("/")[-1]
     slug_dir = f"./data/{slug}"
 
+    body = soup.find("body").prettify()
+
     if not os.path.exists(slug_dir):
-        save_page(url, f"./data/{slug}/{date}", response.text)
+        save_page(url, f"./data/{slug}/{date}", body)
         return ("added", url)
 
     if time_element:
@@ -55,16 +57,19 @@ def crawl(url):
         date_folder = os.path.join(slug_dir, date)
         if os.path.exists(date_folder):
             existing_content_file = os.path.join(date_folder, "index.html")
-            
-            with open(existing_content_file, 'r') as f:
+            with open(existing_content_file, 'r', encoding='utf-8') as f:
                 existing_content = f.read()
-            
-            if existing_content != response.text:
-                save_page(url, f"./data/{slug}/{date}", response.text)
+            normalized_existing_content = '\n'.join(line.strip() for line in existing_content.splitlines() if line.strip())
+            normalized_body = '\n'.join(line.strip() for line in body.splitlines() if line.strip())
+
+            if normalized_existing_content != normalized_body:
+                print("Content changed")
+                save_page(url, f"./data/{slug}/{date}", body)
                 return ("changed", url)
         
+        
         else:
-            save_page(url, f"./data/{slug}/{date}", response.text)
+            save_page(url, f"./data/{slug}/{date}", body)
             return ("changed", url)
     
     else:
@@ -74,14 +79,19 @@ def crawl(url):
         
         if latest_date:
             existing_content_file = os.path.join(slug_dir, latest_date, "index.html")
-            with open(existing_content_file, 'r') as f:
+            with open(existing_content_file, 'r', encoding='utf-8') as f:
                 existing_content = f.read()
 
-            if existing_content != response.text:
-                save_page(url, f"./data/{slug}/{date}", response.text)
+            normalized_existing_content = '\n'.join(line.strip() for line in existing_content.splitlines() if line.strip())
+            normalized_body = '\n'.join(line.strip() for line in body.splitlines() if line.strip())
+
+            if normalized_existing_content != normalized_body:
+                print("Content changed")
+                save_page(url, f"./data/{slug}/{date}", body)
                 return ("changed", url)
+            
         else:
-            save_page(url, f"./data/{slug}/{date}", response.text)
+            save_page(url, f"./data/{slug}/{date}", body)
             return ("changed", url)
 
     # Default return
